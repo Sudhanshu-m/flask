@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hand Tracking Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+        #videoFeed {
+            width: 640px;
+            height: 480px;
+            background-color: #ddd;
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            color: #666;
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        #status {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Hand Tracking Viewer</h1>
+        <div id="videoFeed">
+            Video feed not connected
+        </div>
+        <div class="button-container">
+            <button id="connectBtn">Connect to API</button>
+            <button id="disconnectBtn" disabled>Disconnect</button>
+        </div>
+        <div id="status">Status: Not connected</div>
+    </div>
+
+    <script>
+        const videoFeed = document.getElementById('videoFeed');
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const status = document.getElementById('status');
+        let isConnected = false;
+
+        connectBtn.addEventListener('click', connectToAPI);
+        disconnectBtn.addEventListener('click', disconnectFromAPI);
+
+        function connectToAPI() {
+            isConnected = true;
+            updateUI();
+            
+            // Replace 'http://localhost:5000' with your actual Flask API URL
+            const apiUrl = 'http://localhost:5000/hand_data';
+            
+            // Create an image element to display the video feed
+            const img = document.createElement('img');
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.objectFit = 'cover';
+            
+            // Set the source of the image to the API endpoint
+            img.src = apiUrl;
+            
+            // Clear the video feed container and add the image
+            videoFeed.innerHTML = '';
+            videoFeed.appendChild(img);
+            
+            // Handle any errors in loading the image
+            img.onerror = () => {
+                disconnectFromAPI();
+                alert('Failed to connect to the API. Please check if the server is running and try again.');
+            };
+        }
+
+        function disconnectFromAPI() {
+            isConnected = false;
+            updateUI();
+            videoFeed.innerHTML = 'Video feed not connected';
+        }
+
+        function updateUI() {
+            connectBtn.disabled = isConnected;
+            disconnectBtn.disabled = !isConnected;
+            status.textContent = `Status: ${isConnected ? 'Connected to API' : 'Not connected'}`;
+        }
+    </script>
+</body>
+</html>
